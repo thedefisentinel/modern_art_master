@@ -1,0 +1,16 @@
+# 核心引擎 + 命令行 + 网页服务器 + 玩纯静态版:零第三方依赖(纯标准库,Python >= 3.10)。
+#
+# 以下仅在对应场景需要:
+#
+# 强化学习训练 / 评估(modern_art/rl):
+#   torch
+#   numpy
+#
+# 导出 ONNX(tools/export_onnx.py,供浏览器纯静态版推理):
+#   onnx
+#   onnxruntime
+#
+# 卡面美术生成 / 导入(tools/gen_art.py 需本地 ComfyUI;tools/import_art.py):
+#   Pillow
+#
+# 浏览器端(纯静态版)在运行时从 CDN 加载 onnxruntime-web,无需 pip 安装。

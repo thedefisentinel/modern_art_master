@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>现代艺术 · Modern Art</title>
+<style>
+  :root{
+    --bg:#f4f1ea; --panel:#fffdf9; --line:#e2dccf; --ink:#2b2b2b; --muted:#7a7264;
+    --accent:#8d6e63; --good:#2e7d32;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    background:#f4f1ea;color:#2b2b2b;line-height:1.5}
+  header{background:#3e3a34;color:#f6f2ea;padding:12px 18px;display:flex;
+    align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{font-size:20px;margin:0;letter-spacing:2px}
+  header .phase{font-size:14px;color:#d9cdb5}
+  .wrap{max-width:1000px;margin:0 auto;padding:14px}
+  .panel{background:#fffdf9;border:1px solid #e2dccf;border-radius:10px;
+    padding:12px 14px;margin-bottom:12px}
+  .panel h2{font-size:14px;margin:0 0 8px;color:#7a7264;font-weight:600}
+  table{border-collapse:collapse;width:100%}
+  th,td{padding:6px 8px;text-align:center;font-size:14px}
+  th{color:#7a7264;font-weight:600;border-bottom:1px solid #e2dccf}
+  tr td{border-bottom:1px solid #f0ebe0}
+  .chip{display:inline-flex;align-items:center;justify-content:center;
+    min-width:30px;height:24px;border-radius:6px;color:#fff;font-weight:700;
+    padding:0 6px;font-size:13px}
+  .players{display:flex;gap:10px;flex-wrap:wrap}
+  .pcard{flex:1 1 120px;border:1px solid #e2dccf;border-radius:8px;padding:8px 10px;
+    background:#fffdf9}
+  .pcard.you{border-color:#8d6e63;box-shadow:0 0 0 2px #efe4d6 inset}
+  .pcard .nm{font-weight:700;font-size:14px}
+  .pcard .mn{font-size:18px;color:#2e7d32;font-weight:700}
+  .pcard .sub{font-size:12px;color:#7a7264}
+  .gallery{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px;min-height:34px;
+    padding-top:6px;border-top:1px dashed #e2dccf}
+  .gallery .glabel{font-size:11px;color:#9a9385;align-self:center;margin-right:2px}
+  .mini{width:22px;height:30px;border-radius:4px;border:1px solid rgba(0,0,0,.18);
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .hand{display:flex;gap:8px;flex-wrap:wrap;min-height:64px}
+  .card{width:70px;height:92px;border-radius:8px;border:2.5px solid rgba(0,0,0,.15);
+    cursor:default;user-select:none;position:relative;overflow:hidden;background:#eee}
+  .card .cardimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    object-position:center top;display:block}
+  .card .ctag{position:absolute;top:3px;left:3px;min-width:16px;height:17px;padding:0 4px;
+    border-radius:5px;font-size:11px;font-weight:800;display:flex;align-items:center;
+    justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.35);z-index:2}
+  .card .clabel{position:absolute;bottom:0;left:0;right:0;padding:2px 3px;font-size:11px;
+    font-weight:700;color:#fff;text-align:center;background:rgba(0,0,0,.55);z-index:2}
+  .card.click{cursor:pointer;transition:transform .08s}
+  /* 拍卖台上的画:居中、放大 */
+  #auction .auction-cards{justify-content:center;gap:14px;margin-top:12px}
+  #auction .card{width:150px;height:196px;border-width:3px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  #auction .card .ctag{height:22px;font-size:14px;min-width:22px}
+  #auction .card .clabel{font-size:14px;padding:4px}
+  #auction{text-align:center}
+  .card.click:hover{transform:translateY(-4px)}
+  .card.dim{opacity:.4}
+  .auction-cards{display:flex;gap:8px}
+  .vchip{display:inline-block;min-width:26px;padding:2px 6px;border-radius:12px;
+    background:#f6c700;color:#3a2f00;font-weight:800;font-size:13px}
+  .dot{color:#cdc4b2}
+  tr.currow td{background:#f4efe2}
+  tr.currow td:first-child{font-weight:700;color:#8d6e63}
+  tr.countrow td{border-top:2px solid #e2dccf;color:#7a7264;font-size:13px}
+  .auctionbox{border:1px dashed #d9cdb5;border-radius:8px;padding:8px 10px;
+    margin-bottom:10px;background:#fbf8f1}
+  #controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{font-family:inherit;font-size:14px;padding:7px 14px;border-radius:7px;
+    border:1px solid #cdbfa8;background:#efe4d6;color:#3e3a34;cursor:pointer}
+  button:hover{background:#e6d8c4}
+  button.primary{background:#8d6e63;color:#fff;border-color:#7a5d52}
+  button.primary:hover{background:#7d6055}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  input[type=number]{font-family:inherit;font-size:14px;padding:6px 8px;width:110px;
+    border:1px solid #cdbfa8;border-radius:7px}
+  .hint{color:#7a7264;font-size:13px}
+  #msg{color:#c0392b;font-size:13px;min-height:18px;margin-top:6px}
+  #log{height:180px;overflow:auto;font-size:13px;background:#fbf8f1;border-radius:8px;
+    padding:8px 10px;border:1px solid #f0ebe0;white-space:pre-wrap}
+  #log div{padding:1px 0;border-bottom:1px dashed #efe7d8}
+  /* ── 逐帧演示动画 ── */
+  #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-6px);z-index:50;
+    background:#3e3a34;color:#f6f2ea;padding:9px 18px;border-radius:10px;font-size:15px;
+    box-shadow:0 4px 16px rgba(0,0,0,.28);opacity:0;transition:opacity .2s,transform .2s;
+    pointer-events:none;max-width:82%;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .bubble{position:fixed;z-index:55;padding:4px 10px;border-radius:14px;font-size:13px;
+    font-weight:700;color:#fff;pointer-events:none;white-space:nowrap;
+    animation:floatup 1.3s ease-out forwards}
+  @keyframes floatup{0%{opacity:0;transform:translateY(6px)}15%{opacity:1}
+    78%{opacity:1}100%{opacity:0;transform:translateY(-24px)}}
+  .pulse{animation:pulseA .7s ease-out 2}
+  @keyframes pulseA{0%{box-shadow:0 0 0 0 rgba(141,110,99,.55)}
+    100%{box-shadow:0 0 0 13px rgba(141,110,99,0)}}
+  #auction .card.dealin{animation:dealin .55s ease-out}
+  @keyframes dealin{0%{transform:translateY(-34px) scale(.7);opacity:0}100%{transform:none;opacity:1}}
+  #settleOverlay{position:fixed;inset:0;z-index:60;display:none;align-items:center;
+    justify-content:center;background:rgba(30,26,22,.45)}
+  #settleBox{background:#fffdf9;border-radius:14px;padding:20px 26px;min-width:300px;
+    box-shadow:0 12px 40px rgba(0,0,0,.3);animation:pop .3s ease-out}
+  #settleBox h3{margin:0 0 10px;color:#8d6e63}
+  #settleBox .row{display:flex;justify-content:space-between;gap:24px;padding:3px 0;font-size:15px}
+  #settleBox .gain{color:#2e7d32;font-weight:700}
+  @keyframes pop{0%{transform:scale(.82);opacity:0}100%{transform:none;opacity:1}}
+  #skipBtn{position:fixed;bottom:18px;right:18px;z-index:57;display:none}
+  #setup{max-width:420px;margin:40px auto}
+  #setup label{display:block;margin:10px 0 4px;font-size:14px;color:#7a7264}
+  #setup select{width:100%;padding:8px;font-size:14px;border:1px solid #cdbfa8;border-radius:7px}
+  .result{font-size:16px}
+  .result .win{color:#2e7d32;font-weight:800}
+  .turnflag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;
+    background:#2e7d32;color:#fff}
+  .turnflag.wait{background:#9a9385}
+</style>
+</head>
+<body>
+<header>
+  <h1>现代艺术 · Modern Art</h1>
+  <span class="phase" id="hdrPhase"></span>
+  <span style="flex:1"></span>
+  <span id="turnFlag"></span>
+</header>
+
+<div class="wrap">
+  <!-- 开局设置 -->
+  <div id="setup" class="panel">
+    <h2>开始新对局</h2>
+    <label>玩家人数</label>
+    <select id="numPlayers">
+      <option value="3">3 人</option>
+      <option value="4">4 人</option>
+      <option value="5">5 人</option>
+    </select>
+    <label>难度</label>
+    <select id="aiKind">
+      <option value="rl">AI 大师(最难 · 强化学习)</option>
+      <option value="standard">困难</option>
+      <option value="heuristic">简单</option>
+    </select>
+    <div style="margin-top:16px">
+      <button class="primary" onclick="newGame()">开始对局(你坐 P0)</button>
+    </div>
+    <div style="margin-top:14px">
+      <a href="https://www.bilibili.com/video/BV1o64y1W7JW" target="_blank" rel="noopener"
+         style="display:inline-block;padding:8px 14px;border-radius:8px;background:#00a1d6;color:#fff;
+                text-decoration:none;font-size:14px;font-weight:700">📺 新手教程(B 站视频)</a>
+    </div>
+    <div class="hint" style="margin-top:10px">
+      规则:4 回合拍卖名画,回合结束时上架最多的前三位画家(按颜色)累计计价,只有进前三才变现。终局现金最多者获胜。
+    </div>
+  </div>
+
+  <!-- 对局主体 -->
+  <div id="game" style="display:none">
+    <div class="panel">
+      <h2>画家价值板(列 = 画家 · 左侧优先;行 = 回合,每回合放 30/20/10 标码)</h2>
+      <table id="board"></table>
+    </div>
+
+    <div class="panel">
+      <h2>玩家与收藏区(收藏为公开信息)</h2>
+      <div class="players" id="players"></div>
+    </div>
+
+    <div class="panel">
+      <h2 id="actTitle">你的操作</h2>
+      <div id="controls"></div>
+      <div id="msg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>你的手牌(P0,按颜色排序)</h2>
+      <div class="hand" id="hand"></div>
+    </div>
+
+    <div class="panel" id="resultPanel" style="display:none">
+      <h2>结果</h2>
+      <div class="result" id="result"></div>
+      <div style="margin-top:10px"><button class="primary" onclick="location.reload()">再来一局</button></div>
+    </div>
+
+    <!-- 拍卖区 + 进程日志 合并面板 -->
+    <div class="panel">
+      <h2>拍卖台 &amp; 进程</h2>
+      <div id="auction" class="auctionbox"></div>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="settleOverlay"><div id="settleBox"></div></div>
+<button id="skipBtn" onclick="SKIP=true">⏩ 跳过演示</button>
+
+<!-- 纯前端:引擎/AI 全在浏览器里跑 -->
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script src="engine.js"></script>
+<script src="agents.js"></script>
+<script src="local.js"></script>
+<script>
+const ARTMETA = {
+  lite_metal:  {c:"绿", css:"#43a047", dark:false},
+  yoko:        {c:"粉", css:"#ec407a", dark:false},
+  christin_p:  {c:"蓝", css:"#1e88e5", dark:false},
+  karl_gitter: {c:"红", css:"#e53935", dark:false},
+  krypto:      {c:"黄", css:"#f6c700", dark:true},
+};
+const ARTKEYS = ["lite_metal","yoko","christin_p","karl_gitter","krypto"]; // 左→右优先级
+const AUC = {open:"公开", once:"轮流", sealed:"暗标", fixed:"一口价", double:"双张"};
+const AUCFULL = {open:"公开拍卖", once:"轮流出价", sealed:"暗标", fixed:"一口价", double:"双张"};
+const PHASE = {choose:"选牌上架", double_offer:"双张补牌", bid_open:"公开拍卖竞价",
+  bid_once:"轮流出价", bid_sealed:"暗标出价", buy_fixed:"一口价认购", game_over:"游戏结束"};
+
+let GID = null;
+let S = null;      // 最近一次 payload
+let pending = null; // 选牌时待定价的临时状态
+
+function api(method, path, body){
+  return fetch(path, {method, headers:{'Content-Type':'application/json'},
+    body: body?JSON.stringify(body):undefined}).then(r=>r.json());
+}
+
+async function newGame(){
+  const num = +document.getElementById('numPlayers').value;
+  const ai = document.getElementById('aiKind').value;
+  const btn = document.querySelector('#setup button');
+  const label = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = ai==='rl' ? '加载 AI 模型中…' : '开始中…'; }
+  let p;
+  try { p = await MALocal.newGame(num, ai, 0); }
+  catch(e){ if(btn){ btn.disabled=false; btn.textContent=label; } alert('启动失败:'+(e.message||e)); return; }
+  if(btn){ btn.disabled=false; btn.textContent=label; }
+  if(p.error){ return; }
+  GID = p.game_id;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='';
+  render(p);
+}
+
+function setMsg(t){ document.getElementById('msg').textContent = t || ''; }
+
+function cardEl(card, opts={}){
+  const m = ARTMETA[card.artist];
+  const el = document.createElement('div');
+  el.className = 'card' + (opts.click?' click':'') + (opts.dim?' dim':'');
+  el.style.borderColor = m.css;
+  el.style.background = m.css;                       // 图缺失时的回退底色
+  const aid = card.art_id||0;
+  const tagStyle = `background:${m.css};${m.dark?'color:#3a2f00':'color:#fff'}`;
+  el.innerHTML =
+    `<img class="cardimg" src="art/${card.artist}_${aid}.png" `+
+    `onerror="if(this.dataset.f){this.style.display='none'}else{this.dataset.f=1;this.src='art/${card.artist}.png'}">`+
+    `<div class="ctag" style="${tagStyle}">${m.c}</div>`+
+    `<div class="clabel">${AUCFULL[card.auction]}</div>`;
+  if(opts.onclick) el.onclick = opts.onclick;
+  return el;
+}
+
+function render(p){
+  if(p.error){ setMsg(p.error); return; }
+  S = p; setMsg('');
+  // 头部
+  document.getElementById('hdrPhase').textContent =
+    `第 ${p.round}/4 回合 · ${PHASE[p.phase]||p.phase}`;
+  const tf = document.getElementById('turnFlag');
+  if(p.over){ tf.innerHTML = '<span class="turnflag">对局结束</span>'; }
+  else if(p.is_your_turn){ tf.innerHTML = '<span class="turnflag">轮到你</span>'; }
+  else { tf.innerHTML = '<span class="turnflag wait">AI 行动中</span>'; }
+
+  renderBoard(p);
+  renderPlayers(p);
+  renderAuction(p);
+  renderHand(p);
+  renderControls(p);
+  renderLog(p);
+  renderResult(p);
+}
+
+function renderBoard(p){
+  const t = document.getElementById('board');
+  // 表头:回合 | 各画家(列)
+  let h = '<tr><th>回合</th>' + ARTKEYS.map(k=>{
+    const m = ARTMETA[k];
+    return `<th><span class="chip" style="background:${m.css};${m.dark?'color:#3a2f00':''}">${m.c}</span></th>`;
+  }).join('') + '</tr>';
+  // 四个回合,每格放该回合的价值标码(30/20/10)
+  for(let r=1;r<=4;r++){
+    const cur = (r===p.round && !p.over);
+    h += `<tr class="${cur?'currow':''}"><td>第${r}回合${cur?' ▶进行中':''}</td>`;
+    for(const k of ARTKEYS){
+      const v = (p.value_markers[k]||[])[r-1]||0;
+      h += `<td>${v?`<span class="vchip">${v}</span>`:'<span class="dot">·</span>'}</td>`;
+    }
+    h += '</tr>';
+  }
+  // 底部:本回合已上架张数(决定本回合谁能拿到标码)
+  h += '<tr class="countrow"><td>本回合上架(张)</td>';
+  for(const k of ARTKEYS){
+    const c = p.round_counts[k]||0;
+    h += `<td>${c}${c===4?' ⚠':''}</td>`;
+  }
+  h += '</tr>';
+  t.innerHTML = h;
+}
+
+function renderPlayers(p){
+  const box = document.getElementById('players'); box.innerHTML='';
+  p.players_public.forEach((pp,i)=>{
+    const you = (i===p.you);
+    const el = document.createElement('div');
+    el.className = 'pcard'+(you?' you':'');
+    el.id = 'pcard-'+i;
+    const money = pp.money===null? '***' : pp.money;
+    const toact = (p.to_act===i && !p.over)?' · 行动中':'';
+    el.innerHTML = `<div class="nm">P${i}${you?'(你)':''}${toact}</div>`+
+      `<div class="mn">现金 ${money}</div>`+
+      `<div class="sub">手牌 ${pp.hand_size} · 本回合收藏 ${pp.purchases_count} 张</div>`;
+    // 公开收藏区(本回合购入的画,明摆桌上)
+    const g = document.createElement('div'); g.className='gallery';
+    const lab = document.createElement('span'); lab.className='glabel'; lab.textContent='收藏';
+    g.appendChild(lab);
+    (pp.purchases||[]).forEach(c=>{
+      const m = ARTMETA[c.artist];
+      const mc = document.createElement('div'); mc.className='mini';
+      mc.style.background = m.css; if(m.dark) mc.style.color='#3a2f00';
+      mc.textContent = m.c;
+      mc.title = m.c + ' · ' + AUCFULL[c.auction];
+      g.appendChild(mc);
+    });
+    if((pp.purchases||[]).length===0){
+      const e=document.createElement('span'); e.className='glabel'; e.textContent='(空)';
+      g.appendChild(e);
+    }
+    el.appendChild(g);
+    box.appendChild(el);
+  });
+}
+
+function renderAuction(p){
+  const box = document.getElementById('auction');
+  if(!p.auction){ box.innerHTML='<div class="hint">— 当前无正在进行的拍卖 —</div>'; return; }
+  const a = p.auction;
+  box.innerHTML='';
+  const info = document.createElement('div');
+  let typ = a.auction_type==='double' ? '双张(待补第二张)' : AUCFULL[a.auction_type];
+  let line = `卖家 P${a.seller} · ${typ}`;
+  if(a.is_double_lot){ line += ' · 双张联合(两张一起拍)'; }
+  if(p.phase==='bid_open'||p.phase==='bid_once'){
+    line += ` · 当前最高 ${a.high}` + (a.high_bidder!==null?`(P${a.high_bidder})`:'(无人出价)');
+  }
+  if(p.phase==='buy_fixed'){ line += ` · 定价 ${a.high}`; }
+  info.className='hint'; info.textContent=line;
+  box.appendChild(info);
+  // 展示台上正在拍的实际牌面
+  const row = document.createElement('div'); row.className='auction-cards';
+  row.style.marginTop='8px';
+  let cards = (a.cards && a.cards.length) ? a.cards
+            : (a.double_card ? [a.double_card] : [{artist:a.artist, auction:a.auction_type}]);
+  cards.forEach(c => row.appendChild(cardEl(c)));
+  box.appendChild(row);
+}
+
+const AUCORD = {once:0, open:1, sealed:2, fixed:3, double:4};
+function renderHand(p){
+  const box = document.getElementById('hand'); box.innerHTML='';
+  const canChoose = p.is_your_turn && p.phase==='choose';
+  const canAdd = p.is_your_turn && p.phase==='double_offer';
+  // 按颜色(画家左→右)排序展示,但保留引擎里的真实索引用于出牌
+  const entries = p.your_hand.map((card,idx)=>({card,idx})).sort((a,b)=>{
+    const ai=ARTKEYS.indexOf(a.card.artist), bi=ARTKEYS.indexOf(b.card.artist);
+    if(ai!==bi) return ai-bi;
+    return (AUCORD[a.card.auction]??9)-(AUCORD[b.card.auction]??9);
+  });
+  entries.forEach(({card,idx})=>{
+    let clickable=false, onclick=null, dim=false;
+    if(canChoose){
+      clickable=true;
+      onclick=()=>clickChoose(idx, card);
+    } else if(canAdd){
+      const ok = card.artist===p.auction.artist && card.auction!=='double';
+      clickable=ok; dim=!ok;
+      if(ok) onclick=()=>clickAdd(idx, card);
+    }
+    box.appendChild(cardEl(card,{click:clickable, dim, onclick}));
+  });
+  if(p.your_hand.length===0){
+    const e=document.createElement('div'); e.className='hint'; e.textContent='(手牌为空)';
+    box.appendChild(e);
+  }
+}
+
+// 选牌上架
+function clickChoose(idx, card){
+  if(card.auction==='fixed'){
+    pending = {kind:'ChooseCard', card_index:idx};
+    renderControls(S, {priceFor:card});
+  } else {
+    send({kind:'ChooseCard', card_index:idx});
+  }
+}
+// 双张补牌
+function clickAdd(idx, card){
+  if(card.auction==='fixed'){
+    pending = {kind:'AddSecond', card_index:idx};
+    renderControls(S, {priceFor:card});
+  } else {
+    send({kind:'AddSecond', card_index:idx});
+  }
+}
+
+function renderControls(p, extra){
+  const box = document.getElementById('controls');
+  const title = document.getElementById('actTitle');
+  box.innerHTML=''; extra = extra||{};
+  if(BUSY){ title.textContent='演示中'; box.innerHTML='<span class="hint">AI 行动中,请稍候…(可点右下角跳过)</span>'; return; }
+  if(p.over){ title.textContent='对局结束'; box.innerHTML='<span class="hint">见下方结果</span>'; return; }
+  if(!p.is_your_turn){ title.textContent='等待 AI'; box.innerHTML='<span class="hint">AI 正在行动…</span>'; return; }
+
+  // 一口价定价输入(选牌/补牌时)
+  if(extra.priceFor){
+    title.textContent = pending.kind==='ChooseCard' ? '为『一口价』定价' : '为补的『一口价』定价';
+    const max = p.your_money;
+    box.innerHTML = `<span class="hint">定价范围 0 - ${max}:</span>`;
+    const inp = mkNum(0, max, Math.min(20,max));
+    box.appendChild(inp);
+    box.appendChild(mkBtn('确定', 'primary', ()=>{
+      send({...pending, price: clampVal(inp,0,max)}); pending=null;
+    }));
+    box.appendChild(mkBtn('取消','',()=>{ pending=null; render(S); }));
+    return;
+  }
+
+  const ph = p.phase;
+  if(ph==='choose'){ title.textContent='选牌上架'; box.innerHTML='<span class="hint">点击下方一张手牌来上架拍卖。</span>'; return; }
+  if(ph==='double_offer'){
+    title.textContent='双张补牌';
+    box.innerHTML='<span class="hint">点击下方同色(同画家)的手牌补第二张,或:</span>';
+    box.appendChild(mkBtn('放弃补牌(免费得画)','',()=>send({kind:'DeclineAdd'})));
+    return;
+  }
+  if(ph==='bid_open'||ph==='bid_once'){
+    title.textContent = ph==='bid_open'?'公开拍卖出价':'轮流出价';
+    const bb = p.bid_bounds; // [min,max]
+    if(!bb || bb[1] < bb[0]){
+      box.innerHTML='<span class="hint">现金不足以加价,只能放弃。</span>';
+      box.appendChild(mkBtn('放弃','',()=>send({kind:'PassBid'})));
+      return;
+    }
+    box.innerHTML = `<span class="hint">出价范围 ${bb[0]} - ${bb[1]}:</span>`;
+    const inp = mkNum(bb[0], bb[1], bb[0]);
+    box.appendChild(inp);
+    box.appendChild(mkBtn('出价','primary',()=>send({kind:'Bid', amount: clampVal(inp,bb[0],bb[1])})));
+    box.appendChild(mkBtn('放弃','',()=>send({kind:'PassBid'})));
+    return;
+  }
+  if(ph==='bid_sealed'){
+    title.textContent='暗标出价(其他人看不到)';
+    const bb = p.bid_bounds || [0, p.your_money];
+    box.innerHTML = `<span class="hint">暗标金额 ${bb[0]} - ${bb[1]}:</span>`;
+    const inp = mkNum(bb[0], bb[1], bb[0]);
+    box.appendChild(inp);
+    box.appendChild(mkBtn('提交暗标','primary',()=>send({kind:'SealedBid', amount: clampVal(inp,bb[0],bb[1])})));
+    return;
+  }
+  if(ph==='buy_fixed'){
+    title.textContent='一口价认购';
+    const price = p.auction.high;
+    const can = p.your_money >= price;
+    box.innerHTML = `<span class="hint">卖家定价 ${price}。</span>`;
+    const b = mkBtn(`买下(${price})`,'primary',()=>send({kind:'Buy'}));
+    b.disabled = !can;
+    box.appendChild(b);
+    box.appendChild(mkBtn('不买','',()=>send({kind:'PassBuy'})));
+    if(!can) box.appendChild(hintSpan('(现金不足,只能不买)'));
+    return;
+  }
+  box.innerHTML='';
+}
+
+function mkNum(min,max,val){
+  const i=document.createElement('input'); i.type='number';
+  i.min=min; i.max=max; i.value=val; return i;
+}
+function clampVal(inp,min,max){
+  let v = parseInt(inp.value,10); if(isNaN(v)) v=min;
+  return Math.max(min, Math.min(max, v));
+}
+function mkBtn(txt,cls,fn){
+  const b=document.createElement('button'); b.textContent=txt;
+  if(cls) b.className=cls; b.onclick=fn; return b;
+}
+function hintSpan(t){ const s=document.createElement('span'); s.className='hint'; s.textContent=t; return s; }
+
+// ── 逐帧演示 ──────────────────────────────────────────────────────────
+let BUSY=false, SKIP=false, toastTimer=null;
+const DELAY={settle:2400, won:1800, choose:1500, bid:1150, buy:1150,
+             sealed:950, pass:850, decline:850, nosale:1300, other:450};
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function send(action){
+  setMsg('');
+  const r = await MALocal.action(action);
+  if(r.error){ setMsg(r.error); return; }
+  await playFrames(r.frames, r.final);
+}
+
+async function playFrames(frames, final){
+  BUSY=true; SKIP=false;
+  document.getElementById('skipBtn').style.display = frames.length>2 ? 'block' : 'none';
+  for(const fr of frames){
+    if(SKIP) break;
+    render(fr.payload);
+    animateEvent(fr.event);
+    await sleep(DELAY[fr.event.type] || 900);
+  }
+  document.getElementById('skipBtn').style.display='none';
+  hideToast();
+  BUSY=false;
+  render(final);
+}
+
+function animateEvent(ev){
+  const t = ev.type;
+  const you = (p)=> p===(S?S.you:0) ? '(你)' : '';
+  if(t==='choose'){
+    const m=ARTMETA[ev.artist];
+    showToast(`P${ev.seller}${you(ev.seller)} 拿出 ${chip(ev.artist)}·${AUCFULL[ev.auction_type]||'双张'} 上架`);
+    pulseSel('#auction'); document.querySelectorAll('#auction .card').forEach(c=>c.classList.add('dealin'));
+  } else if(t==='bid'){
+    bubble(ev.player, `出价 ${ev.amount}`, '#8d6e63'); pulsePlayer(ev.player);
+  } else if(t==='buy'){
+    bubble(ev.player, `买下 ${ev.amount}`, '#2e7d32'); pulsePlayer(ev.player);
+  } else if(t==='sealed'){
+    bubble(ev.player, `暗标已出`, '#5c6bc0');
+  } else if(t==='pass'){
+    bubble(ev.player, `放弃`, '#9a9385');
+  } else if(t==='decline'){
+    bubble(ev.player, `不补牌`, '#9a9385');
+  } else if(t==='won'){
+    const n = (ev.cards||[]).length || 1;
+    showToast(ev.free
+      ? `P${ev.winner}${you(ev.winner)} 免费获得 ${chip(ev.artist)}`
+      : `P${ev.winner}${you(ev.winner)} 以 ${ev.price} 拍下 ${chip(ev.artist)} ×${n}`);
+    pulsePlayer(ev.winner); pulseSel('#pcard-'+ev.winner+' .gallery');
+  } else if(t==='nosale'){
+    showToast('流局(无人接手)');
+  } else if(t==='settle'){
+    showSettle(ev);
+  }
+}
+
+function chip(artist){
+  const m=ARTMETA[artist];
+  return `<span class="chip" style="background:${m.css};${m.dark?'color:#3a2f00':''}">${m.c}</span>`;
+}
+function showToast(html){
+  const el=document.getElementById('toast');
+  el.innerHTML=html; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'), 1700);
+}
+function hideToast(){ document.getElementById('toast').classList.remove('show'); }
+function bubble(player, text, color){
+  const pc=document.getElementById('pcard-'+player); if(!pc) return;
+  const r=pc.getBoundingClientRect();
+  const b=document.createElement('div'); b.className='bubble'; b.textContent=text;
+  b.style.background=color; b.style.left=(r.left+r.width/2-24)+'px'; b.style.top=(r.top+6)+'px';
+  document.body.appendChild(b); setTimeout(()=>b.remove(), 1300);
+}
+function pulsePlayer(i){ pulseSel('#pcard-'+i); }
+function pulseSel(sel){ const el=document.querySelector(sel);
+  if(el){ el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); } }
+function showSettle(ev){
+  const box=document.getElementById('settleBox');
+  let rows='';
+  for(let i=0;i<ev.deltas.length;i++){
+    const d=ev.deltas[i]||0;
+    rows+=`<div class="row"><span>P${i}${i===(S?S.you:0)?'(你)':''}</span>`+
+          `<span class="${d>0?'gain':''}">${d>0?'变现 +'+d:(d?d:'—')}</span></div>`;
+  }
+  box.innerHTML=`<h3>第 ${ev.settled_round} 回合结算</h3>${rows}`+
+    (ev.over?'<div class="row" style="margin-top:8px;color:#8d6e63"><span>对局结束!</span><span></span></div>':'');
+  const ov=document.getElementById('settleOverlay'); ov.style.display='flex';
+  setTimeout(()=>{ ov.style.display='none'; }, 2100);
+}
+
+function renderLog(p){
+  const box = document.getElementById('log');
+  box.innerHTML = (p.log||[]).map(l=>`<div>${escapeHtml(l)}</div>`).join('');
+  box.scrollTop = box.scrollHeight;
+}
+function escapeHtml(s){ return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function renderResult(p){
+  const panel=document.getElementById('resultPanel');
+  if(!p.over){ panel.style.display='none'; return; }
+  panel.style.display='';
+  const el=document.getElementById('result');
+  const order=[...p.scores.keys()].sort((a,b)=>p.scores[b]-p.scores[a]);
+  el.innerHTML = order.map((pi,r)=>{
+    const win = p.winner.includes(pi);
+    return `<div class="${win?'win':''}">第${r+1}名 · P${pi}${pi===p.you?'(你)':''} · 现金 ${p.scores[pi]}${win?' 👑':''}</div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
