@@ -7,7 +7,7 @@ venv/
 .pytest_cache/
 
 # 卡面美术:不随仓库分发(可能含受版权的图;请自备或用 tools/gen_art.py 生成)
-modern_art/web/static/art/
+
 
 # RL 训练检查点(体积/产物):只保留 policy_v5 供复现导出
 modern_art/rl/checkpoints/*.pt
