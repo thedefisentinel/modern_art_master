@@ -5,6 +5,8 @@
 > Reiner Knizia 经典拍卖桌游《现代艺术》的开源、从零电子复刻:一套引擎驱动命令行、
 > 零后端网页,以及一个整局在浏览器里跑(ONNX)的自对弈**强化学习 AI**。
 
+线上版本：https://vercel.com/deisentinel/modern-art-master
+
 > ⚠️ **免责声明**:本项目是**非官方的粉丝复刻**,仅供学习与个人娱乐。《现代艺术 / Modern Art》
 > 由 Reiner Knizia 设计,Hans im Glück / CMON 出版,本项目与其无任何关联,也不含任何官方美术或商标资产。
 > 代码采用 **MIT 许可**(见 `LICENSE`)。
