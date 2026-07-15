@@ -2,7 +2,7 @@
 
 **English** | [中文](README.zh.md)
 
-A online version can be found at here: https://vercel.com/deisentinel/modern-art-master
+A online version can be found at here: https://modern-art-master-poh297jbp-deisentinel.vercel.app/
 
 > An open-source, from-scratch electronic re-implementation of Reiner Knizia's
 > classic auction board game **Modern Art** — a single rules engine drives a CLI,
